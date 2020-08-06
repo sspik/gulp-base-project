@@ -1,6 +1,8 @@
 const gulp = require('gulp');
 const gulpIf = require('gulp-if');
 const sync = require('browser-sync');
+const plumber = require('gulp-plumber');
+const notify = require("gulp-notify");
 const fileInclude = require('gulp-file-include');
 const del = require('del');
 const scss = require('gulp-sass');
@@ -104,6 +106,14 @@ function html() {
   *  и триггерит перезагрузку
   */
   return src(path.src.html)
+    .pipe(plumber({
+      errorHandler: notify.onError(function(err){
+        return {
+          title: 'html',
+          message: err.message
+        }
+      })
+    }))
     .pipe(fileInclude())           // собирает
     .pipe(gulpIf(                  // заменяет в html тег img под webp
       useWebp,
@@ -119,6 +129,14 @@ function css() {
   *  в dest и триггерит перезагрузку
   */
   return src(path.src.scss)
+    .pipe(plumber({
+      errorHandler: notify.onError(function(err){
+        return {
+          title: 'scss',
+          message: err.message
+        }
+      })
+    }))
     .pipe(scss({                        // Собирает
       outputStyle: "expanded"
     }))
@@ -145,6 +163,14 @@ function js() {
   *  Создаёт обычную и минифицированную версию main.js
   */
   return src(path.src.js)
+    .pipe(plumber({
+      errorHandler: notify.onError(function(err){
+        return {
+          title: 'js',
+          message: err.message
+        }
+      })
+    }))
     .pipe(webpack({       // скармливает entry файл в webpack
       config: webpackConfig,
     }))
